@@ -86,6 +86,4 @@ def load_dataset(data_path="./data", test=False):
 
         mask = np.logical_and(charges_train > 10, charges_train <= 18)
         valence_charges_train += (charges_train - 10) * mask
-        return (pos_train, charges_train, energies_train, valence_charges_train)
-            
-                
+        return (pos_train, charges_train, valence_charges_train, energies_train)
