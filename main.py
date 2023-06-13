@@ -54,7 +54,7 @@ molecule = Molecule()
 
 molecules = [] # list of molecules
 
-file_pattern = 'data/Atoms/train/*.xyz'
+file_pattern = 'data/atoms/train/*.xyz'
 file_names = glob.glob(file_pattern)
 
 for file_name in file_names:
