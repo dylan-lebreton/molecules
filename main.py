@@ -4,6 +4,12 @@ from keras.layers import Dense
 from keras.losses import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from tqdm import tqdm
+
+from featuring import compute_atomic_number, compute_valence_number
+from utils import load_dataset
+
+tqdm.pandas() # bar progression when using pd.DataFrame.progress_apply
 
 from data.loader import load
 
@@ -14,6 +20,17 @@ train = load(molecules_folder_path=r"./data/atoms/train",
 test = load(molecules_folder_path=r"./data/atoms/test",
             energies_file_path=None,
             already_saved_file_path=r"./data/test.csv")
+
+######################################
+# FEATURING : create new features here
+######################################
+
+train['atomic_number'] = train['atom_name'].progress_apply(lambda name: compute_atomic_number(name))
+train['valence_number'] = train['atomic_number'].progress_apply(lambda atomic_number: compute_valence_number(atomic_number))
+
+(pos_train, charges_train, valence_charges_train, energies_train) = load_dataset(data_path="./data", test=False)
+print("oui")
+
 
 # make a training algorithm on the data molecules to predict the energy of the molecule
 
