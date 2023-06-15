@@ -2,16 +2,20 @@ import glob
 import os
 from pathlib import Path
 from typing import Optional, List, Tuple
-from tqdm import tqdm
 
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
+
+from tools.splitting import split_array_in_train_test_val
+
 
 def molecule_id_from_molecule_file_path(molecule_file_path: Path) -> int:
     """
     Returns molecule's id from its file path.
     """
     return int(molecule_file_path.stem.split("_")[1])
+
 
 def get_molecule_file_paths(molecules_folder_path: str) -> List[Path]:
     """
@@ -36,6 +40,7 @@ def energy_from_molecule_id(molecule_id: int, energies_file_path: Optional[str] 
         result = float(energy_row['energy'])
     return result
 
+
 def lines_from_molecule_file_path(molecule_file_path: Path) -> List[str]:
     """
     Return the lines from the file defining a molecule except the two first ones which are useless.
@@ -44,6 +49,7 @@ def lines_from_molecule_file_path(molecule_file_path: Path) -> List[str]:
         lines = file.readlines()
     return lines[2:]
 
+
 def atom_data_from_molecule_file_path_line(line: str) -> Tuple[str, ...]:
     """
     Return a tuple of the data defining an atom (name, x, y, z) from a given line of the file defining the molecule.
@@ -51,9 +57,10 @@ def atom_data_from_molecule_file_path_line(line: str) -> Tuple[str, ...]:
     """
     result = list(line.strip().split())
     result[0] = str(result[0])
-    for i in range(1, 3+1):
+    for i in range(1, 3 + 1):
         result[i] = float(result[i])
     return tuple(result)
+
 
 def load(molecules_folder_path: str, energies_file_path: Optional[str] = None,
          already_saved_file_path: Optional[str] = None) -> pd.DataFrame:
@@ -85,3 +92,28 @@ def load(molecules_folder_path: str, energies_file_path: Optional[str] = None,
                 result.append(df)
         result = pd.concat(result, ignore_index=True).reset_index(drop=True)
     return result
+
+
+def load_train_val_test(molecules_folder_path: str, energies_file_path: Optional[str] = None,
+                        already_saved_file_path: Optional[str] = None,
+                        train_ratio: float = 0.8, val_ratio: float = 0.1, test_ratio: float = 0.1,
+                        random_state: int = 42) -> Tuple[any, any, any]:
+    data = load(molecules_folder_path=molecules_folder_path, energies_file_path=energies_file_path,
+                already_saved_file_path=already_saved_file_path)
+
+    # retrieve molecules ids
+    molecule_ids = data['molecule_id'].drop_duplicates().to_list()
+
+    # split the molecules ids in train and (val, test)
+    train_ids, val_ids, test_ids = split_array_in_train_test_val(array=molecule_ids,
+                                                                 train_ratio=train_ratio,
+                                                                 val_ratio=val_ratio,
+                                                                 test_ratio=test_ratio,
+                                                                 random_state=random_state)
+
+    # define dataframes with previous ids
+    train = data.loc[data['molecule_id'].isin(train_ids)].copy(deep=True).reset_index(drop=True)
+    val = data.loc[data['molecule_id'].isin(val_ids)].copy(deep=True).reset_index(drop=True)
+    test = data.loc[data['molecule_id'].isin(test_ids)].copy(deep=True).reset_index(drop=True)
+
+    return train, val, test
