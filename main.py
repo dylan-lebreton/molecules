@@ -27,8 +27,8 @@ test = load(molecules_folder_path=r"./data/atoms/test",
 
 train['atomic_number'] = train['atom_name'].progress_apply(lambda name: compute_atomic_number(name))
 train['valence_number'] = train['atomic_number'].progress_apply(lambda atomic_number: compute_valence_number(atomic_number))
-
-(pos_train, charges_train, valence_charges_train, energies_train) = load_dataset(data_path="./data", test=False)
+# train['n_atoms'] = train['molecule_id'].progress_apply(lambda molecule_id: train['molecule_id'].)
+# (pos_train, charges_train, valence_charges_train, energies_train) = load_dataset(data_path="./data", test=False)
 print("oui")
 
 
