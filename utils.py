@@ -6,6 +6,18 @@ an = pyasl.AtomicNo()
 # Maximum number of atoms in one molecule in the dataset
 N_MAX = 23
 
+def load_scattering(train_file_0="order_0_train_qm7.npy", train_file_1_2="orders_1_and_2_train_qm7.npy", 
+                    test_file_0="order_0_test_qm7.npy", test_file_1_2="orders_1_and_2_test_qm7.npy",
+                    folder="data"):
+    order_0_train = np.load(os.path.join(folder, train_file_0))
+    order_0_test = np.load(os.path.join(folder, test_file_0))
+    orders_1_2_train = np.load(os.path.join(folder, train_file_1_2))
+    orders_1_2_test = np.load(os.path.join(folder, test_file_1_2))
+    scattering_coef_train = np.concatenate([order_0_train, orders_1_2_train], axis=1)
+    scattering_coef_test = np.concatenate([order_0_test, orders_1_2_test], axis=1)
+    return scattering_coef_train, scattering_coef_test
+    
+
 def load_dataset(data_path="./data", test=False):
     # Load Test data to predict
     if test:
