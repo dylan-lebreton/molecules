@@ -31,7 +31,7 @@ def normalize_pos(pos, full_charges, sigma = 2.0, overlapping_precision = 1e-1):
     pos = pos * delta / min_dist
     return pos
 
-def scattering(pos, full_charges, valence_charges, batch_size=8, J=2, M=192,
+def scattering(pos, full_charges, valence_charges, ident, batch_size=8, J=2, M=192,
                N=128, O=96, L=3, sigma=2.0,
                integral_powers = [0.5, 1.0, 2.0, 3.0],
                save_to_file = True):
@@ -120,7 +120,7 @@ def scattering(pos, full_charges, valence_charges, batch_size=8, J=2, M=192,
     orders_1_and_2 = orders_1_and_2.reshape((n_molecules, -1))
 
     if save_to_file:
-        basename = f'qm7_L_{L}_J_{J}_sigma_{sigma}_MNO_{(M, N, O)}_powers_{integral_powers}.npy'
+        basename = f'{ident}_qm7.npy'
 
         cache_dir = "scattering"
 
