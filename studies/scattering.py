@@ -9,6 +9,11 @@ from kymatio.scattering3d.backend.torch_backend \
 from kymatio.scattering3d.utils \
     import generate_weighted_sum_of_gaussians
 
+from sklearn import linear_model, model_selection, preprocessing, pipeline
+from scipy.spatial.distance import pdist
+
+from utils import load_dataset, load_scattering
+import argparse
 import torch
 
 def normalize_pos(pos, full_charges, sigma = 2.0, overlapping_precision = 1e-1):
@@ -123,6 +128,7 @@ def scattering(pos, full_charges, valence_charges, ident, batch_size=8, J=2, M=1
         basename = f'{ident}_qm7.npy'
 
         cache_dir = "scattering"
+        os.makedirs(cache_dir, exist_ok=True)
 
         filename = os.path.join(cache_dir, 'order_0_' + basename)
         np.save(filename, order_0)
@@ -132,3 +138,61 @@ def scattering(pos, full_charges, valence_charges, ident, batch_size=8, J=2, M=1
 
     scattering_coef = np.concatenate([order_0, orders_1_and_2], axis=1)
     return scattering_coef
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+                    prog='energy_scattering',
+                    description='Prediction of molecule energy from \
+                        configuration using 3D wavelet scattering.')
+    parser.add_argument("--data", "-d", help="base folder where data is stored", default="data", dest="data")
+    group_scat = parser.add_argument_group("scattering options")
+    group_scat.add_argument("--batch_size", help="Batch size for scattering", default=16)
+    group_scat.add_argument("-j", help="number of scales", default=2, dest="J")
+    group_scat.add_argument("-l", help="number of l values", default=3, dest="L")
+    group_reg = parser.add_argument_group("regression options")
+    group_reg.add_argument("--alpha", help="alpha for ridge regression", default=1e-5)
+    group_reg.add_argument("--val_size", help="validation size in percentage", default=0.05)
+    args = parser.parse_args()
+    try: scattering_coef_train, scattering_coef_test = load_scattering(folder=args.data)
+    except FileNotFoundError: 
+        print("Scattering files not found, expected format in data folder: order_0_train_qm7.npy, \
+orders_1_and_2_train_qm7.npy, order_0_test_qm7.npy, orders_1_and_2_test_qm7.npy")
+        print("Computing scattering from RAW data, will take ~3h with GPU P100.")
+        pos_train, charges_train, valence_charges_train, energies_train = load_dataset(args.data)
+        pos_train = normalize_pos(pos_train, charges_train)
+        scattering_coef_train = scattering(pos_train, charges_train, valence_charges_train, "train",
+                                           batch_size=args.batch_size, J=args.J, L=args.L)
+        pos_test, charges_test, valence_charges_test = load_dataset(args.data, test=True)
+        pos_test = normalize_pos(pos_test, charges_test)
+        scattering_coef_test = scattering(pos_test, charges_test, valence_charges_test, "test",
+                                          batch_size=args.batch_size, J=args.J, L=args.L)
+
+    full_path_energies = os.path.join(args.data, "energies", "train.csv")
+    with open(full_path_energies, 'r') as energies:
+        csv_lines = energies.readlines()[1:]
+        energies_train = np.zeros((len(csv_lines)), dtype=np.float32)
+        for i, csv_line in enumerate(csv_lines):
+            _, energy = csv_line.split(',')
+            energies_train[i] = float(energy)
+    # Split train and validation set
+    x_train, x_val, y_train, y_val = model_selection.train_test_split(scattering_coef_train, energies_train, test_size=args.val_size)
+
+    # Set up Ridge regression
+    scaler = preprocessing.StandardScaler()
+    ridge = linear_model.Ridge(alpha=args.alpha)
+
+    regressor = pipeline.make_pipeline(scaler, ridge)
+    regressor.fit(X=x_train, y=y_train)
+    val_prediction = regressor.predict(X=x_val)
+    RMSE_val = np.sqrt(np.mean((val_prediction - y_val) ** 2))
+    train_prediction = regressor.predict(X=x_train)
+    RMSE_train = np.sqrt(np.mean((train_prediction - y_train) ** 2))
+    print("RMSE training = ", RMSE_train)
+    print("RMSE validation = ", RMSE_val)
+
+    energy_test = regressor.predict(X=scattering_coef_test)
+    id_test = range(3793, 4740)
+    with open("test.csv", 'w') as file:
+        file.write("id,energy\n")
+        for i, e in zip(id_test, energy_test):
+            file.write(f"{i},{e}\n")
