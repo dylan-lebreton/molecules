@@ -9,11 +9,14 @@ dependencies:
   - _tflow_select=2.3.0=mkl
   - abseil-cpp=20211102.0=h27087fc_1
   - absl-py=1.4.0=pyhd8ed1ab_0
+  - aiohttp=3.8.3=py311h5eee18b_0
+  - aiosignal=1.3.1=pyhd8ed1ab_0
   - anyio=3.5.0=py311h06a4308_0
   - argon2-cffi=21.3.0=pyhd3eb1b0_0
   - argon2-cffi-bindings=21.2.0=py311h5eee18b_0
   - asttokens=2.0.5=pyhd3eb1b0_0
   - astunparse=1.6.3=pyhd8ed1ab_0
+  - async-timeout=4.0.2=pyhd8ed1ab_0
   - attrs=21.4.0=pyhd3eb1b0_0
   - babel=2.9.1=pyhd3eb1b0_0
   - backcall=0.2.0=pyhd3eb1b0_0
@@ -21,6 +24,8 @@ dependencies:
   - bleach=4.1.0=pyhd3eb1b0_0
   - blinker=1.6.2=pyhd8ed1ab_0
   - bottleneck=1.3.5=py311hbed6279_0
+  - brotli=1.0.9=h166bdaf_7
+  - brotli-bin=1.0.9=h166bdaf_7
   - brotlipy=0.7.0=py311h5eee18b_1002
   - bzip2=1.0.8=h7b6447c_0
   - c-ares=1.19.0=h5eee18b_0
@@ -32,7 +37,9 @@ dependencies:
   - click=8.1.3=unix_pyhd8ed1ab_2
   - colorama=0.4.6=pyhd8ed1ab_0
   - comm=0.1.2=py311h06a4308_0
+  - contourpy=1.0.5=py311hdb19cb5_0
   - cryptography=39.0.1=py311h9ce1e76_0
+  - cycler=0.11.0=pyhd8ed1ab_0
   - dbus=1.13.18=hb2f20db_0
   - debugpy=1.5.1=py311h6a678d5_0
   - decorator=5.1.1=pyhd3eb1b0_0
@@ -42,10 +49,13 @@ dependencies:
   - expat=2.4.9=h6a678d5_0
   - flatbuffers=2.0.6=h27087fc_0
   - fontconfig=2.14.1=h52c9d5c_1
+  - fonttools=4.25.0=pyhd3eb1b0_0
   - freetype=2.12.1=h4a9f257_0
+  - frozenlist=1.3.3=py311h5eee18b_0
   - gast=0.4.0=pyh9f0ad1d_0
   - giflib=5.2.1=h5eee18b_1
   - glib=2.69.1=he621ea3_2
+  - google-auth=2.20.0=pyh1a96a4e_0
   - google-auth-oauthlib=1.0.0=pyhd8ed1ab_0
   - google-pasta=0.2.0=pyh8c360ce_0
   - grpc-cpp=1.48.2=h5bf31a4_0
@@ -77,9 +87,14 @@ dependencies:
   - jupyterlab_server=2.10.3=pyhd3eb1b0_1
   - jupyterlab_widgets=3.0.5=py311h06a4308_0
   - keras=2.12.0=pyhd8ed1ab_0
+  - kiwisolver=1.4.4=py311h6a678d5_0
   - krb5=1.19.4=h568e23c_0
+  - lcms2=2.12=h3be6417_0
   - ld_impl_linux-64=2.38=h1181459_1
   - lerc=3.0=h295c915_0
+  - libbrotlicommon=1.0.9=h166bdaf_7
+  - libbrotlidec=1.0.9=h166bdaf_7
+  - libbrotlienc=1.0.9=h166bdaf_7
   - libcurl=7.88.1=h91b91d3_0
   - libdeflate=1.8=h7f8727e_5
   - libedit=3.1.20221030=h5eee18b_0
@@ -109,12 +124,16 @@ dependencies:
   - lz4-c=1.9.4=h6a678d5_0
   - markdown=3.4.3=pyhd8ed1ab_0
   - markupsafe=2.1.1=py311h5eee18b_0
+  - matplotlib=3.7.1=py311h38be061_0
+  - matplotlib-base=3.7.1=py311ha02d727_1
   - matplotlib-inline=0.1.2=pyhd3eb1b0_2
   - mistune=0.8.4=py311h5eee18b_1000
   - mkl=2023.1.0=h6d00ec8_46342
   - mkl-service=2.4.0=py311h5eee18b_1
   - mkl_fft=1.3.6=py311ha02d727_1
   - mkl_random=1.2.2=py311ha02d727_1
+  - multidict=6.0.2=py311h5eee18b_0
+  - munkres=1.1.4=pyh9f0ad1d_0
   - nbclassic=0.5.5=py311h06a4308_0
   - nbconvert=5.5.0=py_0
   - nbformat=5.1.3=pyhd3eb1b0_0
@@ -128,7 +147,7 @@ dependencies:
   - numpy=1.23.5=py311h08b1b3b_1
   - numpy-base=1.23.5=py311hf175353_1
   - oauthlib=3.2.2=pyhd8ed1ab_0
-  - openssl=1.1.1t=h7f8727e_0
+  - openssl=1.1.1u=h7f8727e_0
   - opt_einsum=3.3.0=pyhd8ed1ab_1
   - packaging=21.3=pyhd3eb1b0_0
   - pandas=1.5.3=py311hba01205_0
@@ -138,6 +157,7 @@ dependencies:
   - pcre=8.45=h295c915_0
   - pexpect=4.8.0=pyhd3eb1b0_3
   - pickleshare=0.7.5=pyhd3eb1b0_1003
+  - pillow=9.4.0=py311h6a678d5_0
   - pip=23.1.2=py311h06a4308_0
   - platformdirs=2.5.2=py311h06a4308_0
   - ply=3.11=py311h06a4308_0
@@ -162,7 +182,9 @@ dependencies:
   - python=3.11.0=h7a1cb2a_2
   - python-dateutil=2.8.2=pyhd3eb1b0_0
   - python-flatbuffers=23.5.26=pyhd8ed1ab_0
+  - python_abi=3.11=2_cp311
   - pytz=2021.3=pyhd3eb1b0_0
+  - pyu2f=0.1.5=pyhd8ed1ab_0
   - pyzmq=25.1.0=py311h6a678d5_0
   - qt-main=5.15.2=h327a75a_7
   - qt-webengine=5.15.9=hd2b0992_4
@@ -211,13 +233,13 @@ dependencies:
   - widgetsnbextension=4.0.5=py311h06a4308_0
   - wrapt=1.14.1=py311h5eee18b_0
   - xz=5.4.2=h5eee18b_0
+  - yarl=1.8.1=py311h5eee18b_0
   - zeromq=4.3.4=h2531618_0
   - zipp=3.15.0=pyhd8ed1ab_0
   - zlib=1.2.13=h5eee18b_0
   - zstd=1.5.2=ha4553b6_0
   - pip:
       - bidict==0.22.1
-      - google-auth==2.20.0
       - jax==0.4.12
       - libclang==16.0.0
       - lxml==4.9.2
