@@ -128,3 +128,5 @@ if __name__ == "__main__":
         val_loss_history.append(epoch_val_loss)
 
         print(f'Epoch {epoch}, Training loss: {epoch_train_loss}, Validation loss: {epoch_val_loss}')
+
+    print("oui")
