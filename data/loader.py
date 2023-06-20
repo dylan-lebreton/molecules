@@ -5,9 +5,8 @@ from typing import Optional, List, Tuple
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 from tqdm import tqdm
-
-from tools.splitting import split_array_in_train_test_val
 
 
 def molecule_id_from_molecule_file_path(molecule_file_path: Path) -> int:
@@ -105,7 +104,7 @@ def load_train_val_test(molecules_folder_path: str, energies_file_path: Optional
     molecule_ids = data['molecule_id'].drop_duplicates().to_list()
 
     # split the molecules ids in train and (val, test)
-    train_ids, val_ids, test_ids = split_array_in_train_test_val(array=molecule_ids,
+    train_ids, val_ids, test_ids = split_array_in_train_val_test(array=molecule_ids,
                                                                  train_ratio=train_ratio,
                                                                  val_ratio=val_ratio,
                                                                  test_ratio=test_ratio,
@@ -115,5 +114,51 @@ def load_train_val_test(molecules_folder_path: str, energies_file_path: Optional
     train = data.loc[data['molecule_id'].isin(train_ids)].copy(deep=True).reset_index(drop=True)
     val = data.loc[data['molecule_id'].isin(val_ids)].copy(deep=True).reset_index(drop=True)
     test = data.loc[data['molecule_id'].isin(test_ids)].copy(deep=True).reset_index(drop=True)
+
+    return train, val, test
+
+
+def load_train_test(molecules_folder_path: str, energies_file_path: Optional[str] = None,
+                    already_saved_file_path: Optional[str] = None,
+                    train_ratio: float = 0.8, test_ratio: float = 0.2,
+                    random_state: int = 42) -> Tuple[any, any]:
+    data = load(molecules_folder_path=molecules_folder_path, energies_file_path=energies_file_path,
+                already_saved_file_path=already_saved_file_path)
+
+    # retrieve molecules ids
+    molecule_ids = data['molecule_id'].drop_duplicates().to_list()
+
+    # split the molecules ids in train and test
+    train_ids, test_ids = split_array_in_train_test(array=molecule_ids, train_ratio=train_ratio,
+                                                    test_ratio=test_ratio, random_state=random_state)
+
+    # define dataframes with previous ids
+    train = data.loc[data['molecule_id'].isin(train_ids)].copy(deep=True).reset_index(drop=True)
+    test = data.loc[data['molecule_id'].isin(test_ids)].copy(deep=True).reset_index(drop=True)
+
+    return train, test
+
+
+def split_array_in_train_test(array, train_ratio: float, test_ratio: float, random_state: int = 42):
+    assert train_ratio + test_ratio == 1.0
+
+    # split in train and test data
+    train, test = train_test_split(array, test_size=test_ratio, random_state=random_state)
+
+    return train, test
+
+
+def split_array_in_train_val_test(array, train_ratio: float, val_ratio: float, test_ratio: float,
+                                  random_state: int = 42):
+    assert train_ratio + val_ratio + test_ratio == 1.0
+
+    # split in train and (val, test) data
+    train, val_and_test = train_test_split(array, test_size=val_ratio + test_ratio, random_state=random_state)
+
+    # computation of test_ratio on the remaining data
+    remaining_test_ratio = test_ratio / (val_ratio + test_ratio)
+
+    # split (val, test) in val and test
+    val, test = train_test_split(val_and_test, test_size=remaining_test_ratio, random_state=random_state)
 
     return train, val, test
