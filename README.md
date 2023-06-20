@@ -19,3 +19,6 @@ conda env export > environment.yml
 # Kaggle repository
 
 https://www.kaggle.com/competitions/modia-phyml-23
+
+# Scattering notebook
+https://www.kymat.io/gallery_3d/scattering3d_qm7_torch.html
