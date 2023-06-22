@@ -1,6 +1,7 @@
 name: projet_apcp
 channels:
   - pytorch
+  - plotly
   - anaconda
   - conda-forge
   - defaults
@@ -167,6 +168,7 @@ dependencies:
   - pillow=9.4.0=py311h6a678d5_0
   - pip=23.1.2=py311h06a4308_0
   - platformdirs=2.5.2=py311h06a4308_0
+  - plotly=5.15.0=py_0
   - ply=3.11=py311h06a4308_0
   - prometheus_client=0.13.1=pyhd3eb1b0_0
   - prompt-toolkit=3.0.36=py311h06a4308_0
@@ -217,6 +219,7 @@ dependencies:
   - stack_data=0.2.0=pyhd3eb1b0_0
   - sympy=1.11.1=py311h06a4308_0
   - tbb=2021.6.0=hdb19cb5_1
+  - tenacity=8.2.2=py311h06a4308_0
   - tensorboard=2.12.3=pyhd8ed1ab_0
   - tensorboard-data-server=0.7.0=py311h52d8a92_0
   - tensorflow=2.12.0=mkl_py311h34a0fa1_0
