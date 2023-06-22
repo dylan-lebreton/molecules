@@ -1,5 +1,3 @@
-import os
-
 import numpy as np
 import torch
 from kymatio.scattering3d.backend.torch_backend import TorchBackend3D
@@ -143,7 +141,6 @@ position_scaler.transform(test,
 
 # attribute batch number to each molecule
 test['batch'] = batch_attribution(test['molecule_id'], batch_size=30)
-
 
 # iteration over each batch of molecules
 for batch_number in tqdm(test['batch'].unique(), desc="Computing Scattering Coefficients"):
