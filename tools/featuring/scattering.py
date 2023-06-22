@@ -60,8 +60,6 @@ use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 scattering.to(device)
 
-os.mkdir("./scattering_coefficients")
-
 # iteration over each batch of molecules
 for batch_number in tqdm(train['batch'].unique(), desc="Computing Scattering Coefficients"):
 
@@ -105,17 +103,17 @@ for batch_number in tqdm(train['batch'].unique(), desc="Computing Scattering Coe
 
     # we now save all scattering coefficients in a folder
     for i, molecule_id in enumerate(batch['molecule_id'].unique()):
-        np.save(f"./scattering_coefficients/{molecule_id}_charges_zero.npy",
+        np.save(f"../../data/scattering{molecule_id}_charges_zero.npy",
                 charges_zero_order_scattering_coefs.cpu().numpy()[i, ...])
-        np.save(f"./scattering_coefficients/{molecule_id}_charges_first_sec.npy",
+        np.save(f"../../data/scattering{molecule_id}_charges_first_sec.npy",
                 charges_first_sec_order_scattering_coefs.cpu().numpy()[i, ...])
-        np.save(f"./scattering_coefficients/{molecule_id}_valences_zero.npy",
+        np.save(f"../../data/scattering{molecule_id}_valences_zero.npy",
                 valences_zero_order_scattering_coefs.cpu().numpy()[i, ...])
-        np.save(f"./scattering_coefficients/{molecule_id}_valences_first_sec.npy",
+        np.save(f"../../data/scattering{molecule_id}_valences_first_sec.npy",
                 valences_first_sec_order_scattering_coefs.cpu().numpy()[i, ...])
-        np.save(f"./scattering_coefficients/{molecule_id}_core_zero.npy",
+        np.save(f"../../data/scattering{molecule_id}_core_zero.npy",
                 core_zero_order_scattering_coefs.cpu().numpy()[i, ...])
-        np.save(f"./scattering_coefficients/{molecule_id}_core_first_sec.npy",
+        np.save(f"../../data/scattering{molecule_id}_core_first_sec.npy",
                 core_first_sec_order_scattering_coefs.cpu().numpy()[i, ...])
 
 # Now we do the same on test data, but using PositionScaler already fitted on train data
@@ -190,17 +188,17 @@ for batch_number in tqdm(test['batch'].unique(), desc="Computing Scattering Coef
 
     # we now save all scattering coefficients in a folder
     for i, molecule_id in enumerate(batch['molecule_id'].unique()):
-        np.save(f"./scattering_coefficients/{molecule_id}_charges_zero.npy",
+        np.save(f"../../data/scattering{molecule_id}_charges_zero.npy",
                 charges_zero_order_scattering_coefs.cpu().numpy()[i, ...])
-        np.save(f"./scattering_coefficients/{molecule_id}_charges_first_sec.npy",
+        np.save(f"../../data/scattering{molecule_id}_charges_first_sec.npy",
                 charges_first_sec_order_scattering_coefs.cpu().numpy()[i, ...])
-        np.save(f"./scattering_coefficients/{molecule_id}_valences_zero.npy",
+        np.save(f"../../data/scattering{molecule_id}_valences_zero.npy",
                 valences_zero_order_scattering_coefs.cpu().numpy()[i, ...])
-        np.save(f"./scattering_coefficients/{molecule_id}_valences_first_sec.npy",
+        np.save(f"../../data/scattering{molecule_id}_valences_first_sec.npy",
                 valences_first_sec_order_scattering_coefs.cpu().numpy()[i, ...])
-        np.save(f"./scattering_coefficients/{molecule_id}_core_zero.npy",
+        np.save(f"../../data/scattering{molecule_id}_core_zero.npy",
                 core_zero_order_scattering_coefs.cpu().numpy()[i, ...])
-        np.save(f"./scattering_coefficients/{molecule_id}_core_first_sec.npy",
+        np.save(f"../../data/scattering{molecule_id}_core_first_sec.npy",
                 core_first_sec_order_scattering_coefs.cpu().numpy()[i, ...])
 
 """
