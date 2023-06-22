@@ -3,22 +3,18 @@ from typing import List
 import numpy as np
 import pandas as pd
 from PyAstronomy import pyasl
-from scipy.spatial.distance import pdist, squareform
+from scipy.spatial.distance import squareform, pdist
 from tqdm import tqdm
 
-
-def rotate(x, y, z, u):
-    return x*u, y*u, z*u
-
-def translate(x, y, z, b):
-    return x+b, y+b, z+b
 
 def compute_atomic_number(atom_name: str) -> int:
     """
     Renvoie le numéro atomique de l'atome (nombre de protons dans le noyau).
     """
+    # noinspection PyUnresolvedReferences
     an = pyasl.AtomicNo()
     return an.getAtomicNo(atom_name)
+
 
 def compute_valence_number(atomic_number: int) -> int:
     """
@@ -39,11 +35,13 @@ def compute_valence_number(atomic_number: int) -> int:
     else:
         raise ValueError("Atomic number is too large for this function.")
 
+
 def atoms_distances_matrix(atoms_x_y_z_matrix: np.ndarray, two_dimensions: bool = True) -> np.ndarray:
     if two_dimensions:
         return squareform(pdist(atoms_x_y_z_matrix, metric='euclidean'))
     else:
         return pdist(atoms_x_y_z_matrix, metric='euclidean')
+
 
 def split_array_in_batches(array: pd.DataFrame, batch_size: int) -> List[np.ndarray]:
     """
@@ -51,20 +49,21 @@ def split_array_in_batches(array: pd.DataFrame, batch_size: int) -> List[np.ndar
     """
     return [array[i:i+batch_size] for i in range(0, array.shape[0], batch_size)]
 
+
 class PositionScaler:
 
     def __init__(self, overlapping_precision: float = 1e-1, sigma: float = 2.0):
         """
-        The positions of the atoms are normalized so that two Gaussians of width sigma placed at these positions
+        The positions of the atoms are normalized so that two gauss curves of width sigma placed at these positions
         overlap with an amplitude less than overlapping_precision.
 
-        This means that positions are adjusted so that when two Gaussians (representing two atoms) are overlapped,
-        the amplitude of their overlap does not exceed a certain value defined by by overlapping_precision.
+        This means that positions are adjusted so that when two gauss curves (representing two atoms) are overlapped,
+        the amplitude of their overlap does not exceed a certain value defined by overlapping_precision.
 
-        This normalization is designed to ensure that the influence of two atoms in close proximity to each other
+        This normalization is designed to ensure that the influence of two atoms in proximity to each other
         is not disproportionate to that of more distant atoms.
 
-        By limiting the overlap of Gaussians, we prevent the presence of two atoms very close together dominate
+        By limiting the overlap of gauss curves, we prevent the presence of two atoms very close together dominate
         the representation of the molecule in the scattering transform calculation.
         """
         self.overlapping_precision = overlapping_precision
@@ -122,6 +121,7 @@ class PositionScaler:
         self.fit(dataframe, molecule_id_column, x_column, y_column, z_column)
         self.transform(dataframe, x_column, x_rescaled_column, y_column, y_rescaled_column, z_column, z_rescaled_column)
 
+
 def batch_attribution(molecule_id_series, batch_size):
     """
     This function attributes a batch number to each molecule id (grouping molecules by batch of size batch_size).
@@ -171,6 +171,7 @@ def position_tensor_from_dataframe(dataframe: pd.DataFrame, molecule_id_column,
             position_tensor[molecule_id_index, index, 2] = row[z_column]
 
     return position_tensor
+
 
 def charges_tensor_from_dataframe(dataframe: pd.DataFrame, molecule_id_column, charges_column, max_number_of_atoms):
 
