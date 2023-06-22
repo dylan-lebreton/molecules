@@ -101,7 +101,7 @@ for batch_number in tqdm(train['batch'].drop_duplicates().to_numpy(), desc="Scat
     core_zero_order_scattering_coefs = TorchBackend3D.compute_integrals(core_density_map, integral_powers)
     core_first_sec_order_scattering_coefs = scattering(core_density_map)
 
-    # we now add the coefficients to the dataframe
+    # we now save all scattering coefficients in a folder
     for molecule_index in range(charges_zero_order_scattering_coefs.shape[0]):
         molecule_id = batch['molecule_id'].to_numpy()[molecule_index]
         os.mkdir("./scattering_coefficients")
