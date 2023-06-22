@@ -104,7 +104,10 @@ for batch_number in tqdm(train['batch'].drop_duplicates().to_numpy(), desc="Scat
     # we now save all scattering coefficients in a folder
     for molecule_index in range(charges_zero_order_scattering_coefs.shape[0]):
         molecule_id = batch['molecule_id'].to_numpy()[molecule_index]
-        os.mkdir("./scattering_coefficients")
+        try:
+            os.mkdir("./scattering_coefficients")
+        except FileExistsError:
+            pass
         for prefix in ['charges', 'valences', 'core']:
             for suffix in ['zero_order_scattering', 'first_sec_order_scattering']:
                 tensor_to_save = eval(f"{prefix}_{suffix}_coefs").numpy()[molecule_index, ...]
