@@ -1,3 +1,7 @@
+"""
+Regression on the number of atoms per molecule
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import LinearRegression
