@@ -5,6 +5,8 @@ gcn.py
 
 File predicting molecule energy using graph convolutional network.
 """
+import numpy as np
+import tensorflow as tf
 from keras import Model
 from keras.layers import Dense
 from keras.optimizers import Adam
@@ -17,6 +19,7 @@ from tqdm import tqdm
 from data.loader import load, load_train_test
 from tools.featuring.basic import compute_atomic_number, compute_valence_number
 from tools.featuring.gcn import generate_graph
+from tools.io import to_kaggle_csv
 
 tqdm.pandas()
 
@@ -61,16 +64,18 @@ class MoleculeDataset(Dataset):
 
 if __name__ == '__main__':
 
-    learning_rate = 1e-2  # Learning rate
-    epochs = 20  # Number of training epochs
+    learning_rate = 1e-1  # Learning rate
+    epochs = 5  # Number of training epochs
     batch_size = 32  # Batch size
+    tf.random.set_seed(2)
+    np.random.seed(2)
 
     # retrieve of train and validation data
-    train, validation = load_train_test(molecules_folder_path = r"../data/atoms/train", 
+    train, validation = load_train_test(molecules_folder_path=r"../data/atoms/train",
                                         energies_file_path=r"../data/energies/train.csv",
                                         already_saved_file_path=r"../data/train.csv",
-                                        train_ratio = 0.8, test_ratio = 0.2,
-                                        random_state = 42) 
+                                        train_ratio=0.8, test_ratio=0.2,
+                                        random_state=42)
 
     #########################################################
     # Feature engineering and dataset creation for train data
@@ -94,7 +99,7 @@ if __name__ == '__main__':
         molecule_graph = generate_graph(molecule_df, "x", "y", "z", charges_column="Z",
                                         valence_column="valence_number", molecule_energy_column="molecule_energy")
         train_dataset.add_graph(molecule_graph)
-        
+
     ##############################################################
     # Feature engineering and dataset creation for validation data
     ##############################################################
@@ -108,7 +113,8 @@ if __name__ == '__main__':
 
     # computation of valence number
     tqdm.pandas(desc="Computing Valence Number")
-    validation['valence_number'] = validation['Z'].progress_apply(lambda atomic_number: compute_valence_number(atomic_number))
+    validation['valence_number'] = validation['Z'].progress_apply(
+        lambda atomic_number: compute_valence_number(atomic_number))
 
     # creation of validation dataset
     validation_dataset = MoleculeDataset()
@@ -159,11 +165,15 @@ if __name__ == '__main__':
     model = Net()
     optimizer = Adam(learning_rate)
     model.compile(optimizer=optimizer, loss="mse")
+    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.2,
+                                                     patience=30, min_lr=0.001)
 
     # fit the model
     history = model.fit(train_loader.load(),
                         steps_per_epoch=train_loader.steps_per_epoch, epochs=epochs,
-                        validation_data=validation_loader.load(), validation_steps=validation_loader.steps_per_epoch)
+                        validation_data=validation_loader.load(),
+                        validation_steps=validation_loader.steps_per_epoch,
+                        callbacks=[reduce_lr])
 
     # plot training and validation loss over epochs
     plt.figure(figsize=(10, 5))
@@ -173,7 +183,13 @@ if __name__ == '__main__':
     plt.ylabel('Loss')
     plt.title('Evolution of loss on train and validation data')
     plt.legend()
+    plt.semilogy()
     plt.show()
 
-    # Predict model
-    predictions = model.predict(test_loader.load(), steps=test_loader.steps_per_epoch)
+    # predict model
+    predictions = model.predict(test_loader.load(), steps=test_loader.steps_per_epoch).ravel()
+    test_save = test.copy().drop_duplicates(subset=['molecule_id']).reset_index(drop=True)
+    test_save['molecule_energy'] = predictions
+    to_kaggle_csv(test_save, csv_file_path=r"../data/kaggle/gcn.csv",
+                  molecule_id_column='molecule_id',
+                  molecule_prediction_column='molecule_energy')

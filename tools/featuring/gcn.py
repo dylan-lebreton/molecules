@@ -1,3 +1,4 @@
+import numpy as np
 from scipy.spatial.distance import squareform, pdist
 from spektral.data import Graph
 
@@ -24,6 +25,6 @@ def generate_graph(molecule_dataframe, x_column, y_column, z_column, charges_col
     if molecule_energy_column is not None:
         result = Graph(nodes, adjacency, y=molecule_dataframe[molecule_energy_column].values[0])
     else:
-        result = Graph(nodes, adjacency)
+        result = Graph(nodes, adjacency, y=np.nan)
 
     return result
