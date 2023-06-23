@@ -14,7 +14,7 @@ from spektral.layers import GCNConv
 from spektral.layers import GlobalSumPool, GraphMasking
 from tqdm import tqdm
 
-from data.loader import load
+from data.loader import load, load_train_test
 from tools.featuring.basic import compute_atomic_number, compute_valence_number
 from tools.featuring.gcn import generate_graph
 
@@ -65,10 +65,16 @@ if __name__ == '__main__':
     epochs = 20  # Number of training epochs
     batch_size = 32  # Batch size
 
-    # retrieve of test data
-    train = load(molecules_folder_path=r"../data/atoms/train",
-                 energies_file_path=r"../data/energies/train.csv",
-                 already_saved_file_path=r"../data/train.csv")
+    # retrieve of train and validation data
+    train, validation = load_train_test(molecules_folder_path = r"../data/atoms/train", 
+                                        energies_file_path=r"../data/energies/train.csv",
+                                        already_saved_file_path=r"../data/train.csv",
+                                        train_ratio = 0.8, test_ratio = 0.2,
+                                        random_state = 42) 
+
+    #########################################################
+    # Feature engineering and dataset creation for train data
+    #########################################################
 
     # computation of atomic number
     tqdm.pandas(desc="Computing Atomic Number")
@@ -88,6 +94,33 @@ if __name__ == '__main__':
         molecule_graph = generate_graph(molecule_df, "x", "y", "z", charges_column="Z",
                                         valence_column="valence_number", molecule_energy_column="molecule_energy")
         train_dataset.add_graph(molecule_graph)
+        
+    ##############################################################
+    # Feature engineering and dataset creation for validation data
+    ##############################################################
+
+    # computation of atomic number
+    tqdm.pandas(desc="Computing Atomic Number")
+    validation['Z'] = validation['atom_name'].progress_apply(lambda name: compute_atomic_number(name))
+
+    # sort the dataframe by molecule_id and atome atomic number
+    validation.sort_values(by=['molecule_id', 'Z'], inplace=True)
+
+    # computation of valence number
+    tqdm.pandas(desc="Computing Valence Number")
+    validation['valence_number'] = validation['Z'].progress_apply(lambda atomic_number: compute_valence_number(atomic_number))
+
+    # creation of validation dataset
+    validation_dataset = MoleculeDataset()
+    for molecule_id in tqdm(validation.molecule_id.unique(), desc="Creating validation dataset"):
+        molecule_df = validation[validation.molecule_id == molecule_id].reset_index(drop=True)
+        molecule_graph = generate_graph(molecule_df, "x", "y", "z", charges_column="Z",
+                                        valence_column="valence_number", molecule_energy_column="molecule_energy")
+        validation_dataset.add_graph(molecule_graph)
+
+    ########################################################
+    # Feature engineering and dataset creation for test data
+    ########################################################
 
     # retrieve test data
     test = load(molecules_folder_path=r"../data/atoms/test",
@@ -113,8 +146,13 @@ if __name__ == '__main__':
                                         valence_column="valence_number", molecule_energy_column=None)
         test_dataset.add_graph(molecule_graph)
 
+    ############
+    # Prediction
+    ############
+
     # create datasets loaders
     train_loader = BatchLoader(train_dataset, batch_size=batch_size, mask=True)
+    validation_loader = BatchLoader(validation_dataset, batch_size=batch_size, mask=True)
     test_loader = BatchLoader(test_dataset, batch_size=batch_size, mask=True)
 
     # build model
@@ -125,7 +163,7 @@ if __name__ == '__main__':
     # fit the model
     history = model.fit(train_loader.load(),
                         steps_per_epoch=train_loader.steps_per_epoch, epochs=epochs,
-                        validation_data=test_loader.load(), validation_steps=train_loader.steps_per_epoch)
+                        validation_data=validation_loader.load(), validation_steps=validation_loader.steps_per_epoch)
 
     # plot training and validation loss over epochs
     plt.figure(figsize=(10, 5))
@@ -137,10 +175,5 @@ if __name__ == '__main__':
     plt.legend()
     plt.show()
 
-    # Evaluate model
-    loss = model.evaluate(train_loader.load(), steps=train_loader.steps_per_epoch)
-    print("Done. Train loss: {}".format(loss))
-
     # Predict model
-    loader_te = BatchLoader(test_dataset, batch_size=batch_size, mask=True)
-    predictions = model.predict(loader_te.load(), steps=loader_te.steps_per_epoch)
+    predictions = model.predict(test_loader.load(), steps=test_loader.steps_per_epoch)
