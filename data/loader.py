@@ -79,7 +79,7 @@ def load(molecules_folder_path: str, energies_file_path: Optional[str] = None,
     else:
         # iteration over files defining molecules
         result = list()
-        for molecule_file_path in tqdm(get_molecule_file_paths(molecules_folder_path)):
+        for molecule_file_path in tqdm(get_molecule_file_paths(molecules_folder_path), desc="Loading data"):
             molecule_id = molecule_id_from_molecule_file_path(molecule_file_path)
             molecule_energy = energy_from_molecule_id(energies_file_path=energies_file_path,
                                                       molecule_id=molecule_id)
