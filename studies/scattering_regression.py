@@ -1,5 +1,5 @@
 """
-
+Linear regression on scattering coefficients.
 """
 import numpy as np
 from keras.losses import mean_squared_error
