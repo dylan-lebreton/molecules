@@ -90,6 +90,7 @@ def load(molecules_folder_path: str, energies_file_path: Optional[str] = None,
                                    "atom_name": [atom_name], "x": [x], "y": [y], "z": [z]})
                 result.append(df)
         result = pd.concat(result, ignore_index=True).reset_index(drop=True)
+        result = result.sort_values(by=["molecule_id", "atom_name"]).reset_index(drop=True)
     return result
 
 
